@@ -14,22 +14,22 @@ import (
 func main() {
 	postTickChan := time.NewTicker(time.Second * 10).C
 	stdInChan := make(chan string, 300)
+	stdInEOFReached := false
 
 	go func() {
 		scanner := bufio.NewScanner(os.Stdin)
-
 		for scanner.Scan() {
 			line := scanner.Text()
 			stdInChan <- line
 			fmt.Println(line)
 		}
-
 		// Check for errors during `Scan`. End of file is
 		// expected and not reported by `Scan` as an error.
 		if err := scanner.Err(); err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)
 			os.Exit(1)
 		}
+		stdInEOFReached = true
 	}()
 
 	for {
@@ -47,6 +47,9 @@ func main() {
 				if chanEmpty {
 					if len(lines) > 0 {
 						doPost(lines)
+					}
+					if stdInEOFReached {
+						os.Exit(0)
 					}
 					break
 				}
