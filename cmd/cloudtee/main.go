@@ -27,6 +27,7 @@ func main() {
 		// expected and not reported by `Scan` as an error.
 		if err := scanner.Err(); err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)
+			doPost([]string{err.Error()})
 			os.Exit(1)
 		}
 		stdInEOFReached = true
@@ -49,6 +50,7 @@ func main() {
 						doPost(lines)
 					}
 					if stdInEOFReached {
+						doPost([]string{"EOF"})
 						os.Exit(0)
 					}
 					break
